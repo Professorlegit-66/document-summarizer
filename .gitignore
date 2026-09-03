@@ -20,3 +20,5 @@ Thumbs.db
 # Editor
 .vscode/*
 !.vscode/extensions.json
+
+tests_manual/
