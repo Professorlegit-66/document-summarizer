@@ -1,0 +1,20 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """
+    Central application configuration.
+
+    Values are loaded from environment variables (or a local .env file
+    during development). Never hard-code secrets or environment-specific
+    values elsewhere in the app — add a field here instead.
+    """
+
+    app_name: str = "Document Summarizer API"
+    debug: bool = False
+    frontend_origin: str = "http://localhost:5173"
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+
+settings = Settings()
