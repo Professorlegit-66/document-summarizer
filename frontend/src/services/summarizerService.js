@@ -1,55 +1,55 @@
-// Mock implementation for Milestone 6.
+// Milestone 7: real implementation, replacing the Milestone 6 mock.
 //
-// IMPORTANT: This function's signature and its resolve/reject shape are
-// intentionally designed to match what the real fetch-based version
-// (Milestone 7) will look like. When we swap it, only the body of
-// summarizeDocument() changes — no component that calls this should
-// need to change.
+// summarizeDocument()'s signature and resolve/reject shape are unchanged
+// from the mock version, so no component needs to change.
 
-const MOCK_DELAY_MS = 1500;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const MOCK_SUMMARIES = {
-  paragraph:
-    'This document provides an overview of the subject matter, covering the ' +
-    'main arguments and supporting evidence in a connected narrative form. ' +
-    'This is placeholder text standing in for a real AI-generated summary.',
-  bullet_points:
-    '• First main point from the document\n' +
-    '• Second main point from the document\n' +
-    '• Third main point from the document',
-  key_takeaways:
-    'Key Takeaway 1: Placeholder insight drawn from the document.\n' +
-    'Key Takeaway 2: Another placeholder insight.\n' +
-    'Key Takeaway 3: A final placeholder insight.',
+const STATUS_MESSAGES = {
+  400: 'The file appears to be empty. Please choose a different file.',
+  413: 'This file is too large to process. Please try a smaller file.',
+  415: "This file type isn't supported. Please upload a PDF, DOCX, or TXT file.",
+  422: "We couldn't read this file. It may be corrupted or contain no readable text.",
+  502: 'The AI service returned an unexpected response. Please try again.',
+  503: "The AI service is currently unavailable. Please make sure it's running and try again.",
+  504: 'The request took too long to process. Please try again with a shorter document.',
 };
 
 /**
- * Simulates sending a document to the backend for summarization.
+ * Sends a document to the backend for AI summarization.
  *
- * @param {File} file - the selected file (only its name is used here)
+ * @param {File} file
  * @param {'short'|'medium'|'detailed'} length
  * @param {'paragraph'|'bullet_points'|'key_takeaways'} style
  * @returns {Promise<{filename: string, summary: string, summary_length: string, summary_style: string}>}
- * @throws {Error} with a user-facing message, if the filename contains "fail"
- *                 (a convenient manual trigger for testing the error UI path)
+ * @throws {Error} with a user-facing message on any failure
  */
 export async function summarizeDocument(file, length, style) {
-  await wait(MOCK_DELAY_MS);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('length', length);
+  formData.append('style', style);
 
-  if (file?.name?.toLowerCase().includes('fail')) {
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/summarize`, {
+      method: 'POST',
+      body: formData,
+    });
+  } catch (networkError) {
+    // fetch only throws on true network failure (backend unreachable,
+    // no response received at all) — not on 4xx/5xx HTTP responses.
     throw new Error(
-      'The AI service is currently unavailable. Please try again in a moment.'
+      "Can't reach the server. Please make sure the backend is running and try again."
     );
   }
 
-  return {
-    filename: file?.name ?? 'document.txt',
-    summary: MOCK_SUMMARIES[style] ?? MOCK_SUMMARIES.paragraph,
-    summary_length: length,
-    summary_style: style,
-  };
-}
+  if (!response.ok) {
+    const message =
+      STATUS_MESSAGES[response.status] ??
+      'Something unexpected happened. Please try again.';
+    throw new Error(message);
+  }
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return response.json();
 }
