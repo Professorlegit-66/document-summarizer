@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     ollama_model: str = "llama3.2"
     ollama_timeout_seconds: float = 120.0
 
+    # Upload / document limits
+    max_upload_size_mb: float = 10.0
+    max_extracted_chars: int = 12000
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 settings = Settings()
