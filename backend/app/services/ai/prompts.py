@@ -14,9 +14,10 @@ _STYLE_INSTRUCTIONS: dict[SummaryStyle, str] = {
     "paragraph": "Format the summary as flowing prose paragraphs. Do not use bullet points.",
     "bullet_points": "Format the summary as a bulleted list of the key points. "
                      "Use '-' for each bullet.",
-    "key_takeaways": "Format the summary as a short list of key takeaways, "
-                     "each starting with a bolded 3-5 word label followed by "
-                     "a brief explanation.",
+    "key_takeaways": "Format the summary as a short list of key takeaways. "
+                     "Each line should start with a short 3-5 word label, followed "
+                     "by a colon, followed by a brief explanation. "
+                     "For example: 'Rising costs: Production expenses increased due to...'",
 }
 
 
@@ -45,6 +46,8 @@ def build_summary_prompt(
         f"Format requirement: {style_instruction}\n\n"
         "Only return the summary itself. Do not include any preamble like "
         "'Here is the summary' or any commentary about the text.\n\n"
+        "Do not use Markdown formatting of any kind. Do not use asterisks, "
+        "underscores, '#' headers, or numbered-list syntax. Return plain text only.\n\n"
         "Text to summarize:\n"
         "\"\"\"\n"
         f"{text}\n"

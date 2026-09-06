@@ -86,8 +86,8 @@ async def summarize_document(
     except AIServiceUnavailableError:
         raise HTTPException(
             status_code=503,
-            detail="The AI service is currently unavailable. "
-                   "Please make sure Ollama is running.",
+            detail="The summarization service is currently unavailable. "
+                   "Please try again in a moment.",
         )
     except AIModelNotFoundError:
         raise HTTPException(status_code=503, detail="The AI model is not available.")

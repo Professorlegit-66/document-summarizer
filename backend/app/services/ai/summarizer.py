@@ -1,3 +1,5 @@
+import re
+
 import httpx
 
 from app.core.config import settings
@@ -10,6 +12,27 @@ from app.services.ai.exceptions import (
 from app.services.ai.prompts import SummaryLength, SummaryStyle, build_summary_prompt
 
 _GENERATE_ENDPOINT = "/api/generate"
+
+
+def _strip_markdown(text: str) -> str:
+    """
+    Remove common Markdown formatting artifacts from AI output.
+
+    Local models sometimes emit Markdown syntax (bold, headers) even when
+    instructed not to. This is a defensive backstop, not the primary fix —
+    the prompt itself asks for plain text — but we don't rely on the model
+    following instructions perfectly.
+    """
+    # Bold/italic: **text** or *text* or __text__ or _text_
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    text = re.sub(r"__(.+?)__", r"\1", text)
+    text = re.sub(r"(?<!\w)\*(.+?)\*(?!\w)", r"\1", text)
+    text = re.sub(r"(?<!\w)_(.+?)_(?!\w)", r"\1", text)
+
+    # Markdown headers: "# Heading", "## Heading", etc. -> "Heading"
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
+
+    return text
 
 
 def summarize(
@@ -81,4 +104,4 @@ def summarize(
     if not summary:
         raise AIResponseError("AI service returned an empty summary.")
 
-    return summary
+    return _strip_markdown(summary)

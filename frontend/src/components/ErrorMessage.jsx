@@ -9,7 +9,7 @@ export default function ErrorMessage({ message }) {
   if (!message) return null;
 
   return (
-    <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-red-700">
+    <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-950 dark:text-red-300">
       <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
       <p className="text-sm">{message}</p>
     </div>

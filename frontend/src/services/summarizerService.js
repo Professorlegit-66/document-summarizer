@@ -11,7 +11,7 @@ const STATUS_MESSAGES = {
   415: "This file type isn't supported. Please upload a PDF, DOCX, or TXT file.",
   422: "We couldn't read this file. It may be corrupted or contain no readable text.",
   502: 'The AI service returned an unexpected response. Please try again.',
-  503: "The AI service is currently unavailable. Please make sure it's running and try again.",
+  503: 'The summarization service is temporarily unavailable. Please try again in a moment.',
   504: 'The request took too long to process. Please try again with a shorter document.',
 };
 
@@ -40,7 +40,7 @@ export async function summarizeDocument(file, length, style) {
     // fetch only throws on true network failure (backend unreachable,
     // no response received at all) — not on 4xx/5xx HTTP responses.
     throw new Error(
-      "Can't reach the server. Please make sure the backend is running and try again."
+      "Couldn't connect. Please check your internet connection and try again."
     );
   }
 

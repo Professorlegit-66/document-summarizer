@@ -4,15 +4,19 @@ import SummaryOptions from './components/SummaryOptions';
 import LoadingIndicator from './components/LoadingIndicator';
 import ResultDisplay from './components/ResultDisplay';
 import ErrorMessage from './components/ErrorMessage';
+import ThemeToggle from './components/ThemeToggle';
 import { summarizeDocument } from './services/summarizerService';
+import { useDarkMode } from './hooks/useDarkMode';
 import { DEFAULT_SUMMARY_LENGTH, DEFAULT_SUMMARY_STYLE } from './constants/summaryOptions';
+import { FOCUS_RING } from './constants/styles';
 
 export default function App() {
+  const { isDark, toggle } = useDarkMode();
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [length, setLength] = useState(DEFAULT_SUMMARY_LENGTH);
   const [style, setStyle] = useState(DEFAULT_SUMMARY_STYLE);
 
-  // status: 'idle' | 'loading' | 'success' | 'error'
   const [status, setStatus] = useState('idle');
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -40,8 +44,20 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-8">
-      <div className="mx-auto flex max-w-md flex-col gap-6">
+    <div className="flex min-h-screen flex-col bg-white p-8 dark:bg-gray-900">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Document Summarizer
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Upload a PDF, DOCX, or TXT file and get an AI-generated summary in seconds.
+            </p>
+          </div>
+          <ThemeToggle isDark={isDark} onToggle={toggle} />
+        </div>
+
         <UploadArea
           selectedFile={selectedFile}
           onFileSelected={(file) => {
@@ -63,8 +79,9 @@ export default function App() {
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitDisabled}
-          className="rounded-lg bg-blue-600 py-2.5 font-medium text-white transition-colors
-            hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+          className={`rounded-lg bg-blue-600 py-2.5 font-medium text-white transition-colors
+            hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300
+            dark:disabled:bg-gray-700 ${FOCUS_RING}`}
         >
           Summarize
         </button>
@@ -73,6 +90,10 @@ export default function App() {
         {status === 'error' && <ErrorMessage message={errorMessage} />}
         {status === 'success' && <ResultDisplay result={result} />}
       </div>
+
+      <p className="mx-auto mt-8 max-w-md text-center text-xs text-gray-400 dark:text-gray-600">
+        This project is under active development — features and behavior may change.
+      </p>
     </div>
   );
 }
