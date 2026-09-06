@@ -3,7 +3,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from app.core.config import settings
 from app.models.summarize import SummarizeResponse
 from app.services import document_parser
-from app.services.ai import summarize as ai_summarize
+from app.services.ai.chunking import generate_summary
 from app.services.ai.exceptions import (
     AIModelNotFoundError,
     AIRequestTimeoutError,
@@ -77,12 +77,12 @@ async def summarize_document(
     if len(cleaned_text) > settings.max_extracted_chars:
         raise HTTPException(
             status_code=413,
-            detail="This document is too long to summarize right now. "
-                   "Support for long documents is coming soon.",
+            detail="This document is too long to summarize, even with chunking. "
+                   "Please try a shorter document.",
         )
 
     try:
-        summary = ai_summarize(cleaned_text, length=length, style=style)
+        summary = generate_summary(cleaned_text, length=length, style=style)
     except AIServiceUnavailableError:
         raise HTTPException(
             status_code=503,

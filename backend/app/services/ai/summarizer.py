@@ -41,6 +41,9 @@ def summarize(
         "model": settings.ollama_model,
         "prompt": prompt,
         "stream": False,
+        "options": {
+            "num_ctx": settings.ollama_num_ctx,
+        },
     }
 
     try:

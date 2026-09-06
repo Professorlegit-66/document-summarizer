@@ -16,11 +16,13 @@ class Settings(BaseSettings):
     # AI / Ollama configuration
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.2"
-    ollama_timeout_seconds: float = 120.0
+    ollama_timeout_seconds: float = 600.0
+    ollama_num_ctx: int = 8192          # NEW — explicit context window sent to Ollama
 
     # Upload / document limits
     max_upload_size_mb: float = 10.0
-    max_extracted_chars: int = 12000
+    chunk_threshold_chars: int = 12000  # NEW — above this, chunk instead of single-pass
+    max_extracted_chars: int = 200000   # CHANGED — raised from 12000, now an outer ceiling
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
