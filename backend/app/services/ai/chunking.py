@@ -1,4 +1,5 @@
 import re
+import time
 
 from app.core.config import settings
 from app.services.ai.prompts import SummaryLength, SummaryStyle
@@ -48,6 +49,10 @@ def generate_summary(
         print(f"Summarizing chunk {i}/{len(chunks)} ({len(chunk)} chars)...")
         chunk_summaries.append(summarize(chunk, length="detailed", style="paragraph"))
         print(f"Chunk {i}/{len(chunks)} done.")
+
+        if settings.ai_provider == "groq":
+            print(f"Pausing {settings.groq_chunk_pacing_seconds}s to stay under Groq's rate limit...")
+            time.sleep(settings.groq_chunk_pacing_seconds)
 
     combined_text = "\n\n".join(chunk_summaries)
     print(f"All chunks summarized. Running final synthesis ({len(combined_text)} chars combined)...")

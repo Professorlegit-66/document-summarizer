@@ -10,6 +10,7 @@ const STATUS_MESSAGES = {
   413: 'This file is too large to process. Please try a smaller file.',
   415: "This file type isn't supported. Please upload a PDF, DOCX, or TXT file.",
   422: "We couldn't read this file. It may be corrupted or contain no readable text.",
+  429: "You've made too many requests. Please wait a bit before trying again.",
   502: 'The AI service returned an unexpected response. Please try again.',
   503: 'The summarization service is temporarily unavailable. Please try again in a moment.',
   504: 'The request took too long to process. Please try again with a shorter document.',

@@ -14,5 +14,9 @@ class AIRequestTimeoutError(AIServiceError):
     """Raised when a request to the AI service takes too long to respond."""
 
 
+class AIRateLimitError(AIServiceError):
+    """Raised when the AI provider's own rate limit or usage quota has been exceeded."""
+
+
 class AIResponseError(AIServiceError):
     """Raised when the AI service responds, but the response is invalid or unusable."""

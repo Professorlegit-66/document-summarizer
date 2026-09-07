@@ -1,11 +1,13 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from app.core.config import settings
+from app.core.limiter import limiter
 from app.models.summarize import SummarizeResponse
 from app.services import document_parser
 from app.services.ai.chunking import generate_summary
 from app.services.ai.exceptions import (
     AIModelNotFoundError,
+    AIRateLimitError,
     AIRequestTimeoutError,
     AIResponseError,
     AIServiceUnavailableError,
@@ -25,7 +27,10 @@ _BYTES_PER_MB = 1024 * 1024
 
 
 @router.post("/summarize", response_model=SummarizeResponse)
+@limiter.limit("5/hour")
+@limiter.limit("15/day")
 async def summarize_document(
+    request: Request,
     file: UploadFile = File(...),
     length: SummaryLength = Form("medium"),
     style: SummaryStyle = Form("paragraph"),
@@ -91,6 +96,12 @@ async def summarize_document(
         )
     except AIModelNotFoundError:
         raise HTTPException(status_code=503, detail="The AI model is not available.")
+    except AIRateLimitError:
+        raise HTTPException(
+            status_code=429,
+            detail="This app has reached its usage limit for now. "
+                   "Please try again in a few minutes.",
+        )
     except AIRequestTimeoutError:
         raise HTTPException(
             status_code=504,
